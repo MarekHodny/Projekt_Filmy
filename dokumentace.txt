@@ -1,1 +1,2 @@
 první comit
+uprava z vetve administrace
