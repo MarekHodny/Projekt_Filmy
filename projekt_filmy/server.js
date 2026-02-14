@@ -1,79 +1,93 @@
-const express = require('express');
-const fs = require('fs');
-const path = require('path');
-const app = express();
+const http = require("http");
+const fs = require("fs");
+const path = require("path");
 
-// nacte css 
-app.use(express.static(__dirname));
-// nacteni z formulare
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+const DATA_FILE = path.join(__dirname, "filmy.json");
 
 
-const DATA_FILE = path.join(__dirname, 'filmy.json');
-
-// nacte filmy z json
-const nactiData = () => {
+function loadData() {
     try {
-        const data = fs.readFileSync(DATA_FILE, 'utf-8');
+        const data = fs.readFileSync(DATA_FILE, "utf-8");
         return JSON.parse(data);
     } catch (e) { return []; }
-};
+}
 
-// ulozi do json
-const ulozData = (data) => fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2));
 
-// seznam
-app.get('/items', (req, res) => {
-    const filmy = nactiData();
-    const s = req.query.search ? req.query.search.toLowerCase() : "";
-    const filtrovane = filmy.filter(f => f.nazev.toLowerCase().includes(s));
-    res.json(filtrovane);
-});
+function saveData(data) {
+    fs.writeFileSync(DATA_FILE, JSON.stringify(data, null, 2), "utf-8");
+}
 
-// upraveni
-app.get('/get-film/:id', (req, res) => {
-    const filmy = nactiData();
-    const film = filmy.find(f => f.id == req.params.id);
-    if (film) {
-        res.json(film);
-    } else {
-        res.status(404).send('Film nenalezen');
+const server = http.createServer((req, res) => {
+    const filmy = loadData();
+
+   
+    if (req.url === "/" && req.method === "GET") {
+        res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+        return res.end(fs.readFileSync(path.join(__dirname, "index.html")));
     }
-});
 
-// ulozeni upraveni
-app.post('/edit/:id', (req, res) => {
-    let filmy = nactiData();
-    const index = filmy.findIndex(f => f.id == req.params.id);
-    if (index !== -1) {
-        filmy[index] = { 
-            id: Number(req.params.id), 
-            nazev: req.body.nazev,
-            rok: req.body.rok,
-            zanr: req.body.zanr
-        };
-        ulozData(filmy);
-    }
-    res.redirect('/');
     
+    if (req.url === "/style.css") {
+        res.writeHead(200, { "Content-Type": "text/css" });
+        return res.end(fs.readFileSync(path.join(__dirname, "style.css")));
+    }
+
+   
+    if (req.url.startsWith("/items") && req.method === "GET") {
+        const urlParams = new URL(req.url, `http://${req.headers.host}`);
+        const s = urlParams.searchParams.get("search") || "";
+        const filtrovane = filmy.filter(f => f.nazev.toLowerCase().includes(s.toLowerCase()));
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify(filtrovane));
+    }
+
+
+    if (req.url.startsWith("/get-film/") && req.method === "GET") {
+        const id = Number(req.url.split("/")[2]);
+        const film = filmy.find(f => f.id === id);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        return res.end(JSON.stringify(film || { error: "Nenalezeno" }));
+    }
+
+    
+    if (req.method === "POST") {
+        let body = "";
+        req.on("data", chunk => { body += chunk; });
+        req.on("end", () => {
+            const data = new URLSearchParams(body);
+            const filmData = {
+                nazev: data.get("nazev"),
+                rok: data.get("rok"),
+                zanr: data.get("zanr")
+            };
+
+            
+            if (req.url === "/items") {
+                const newFilm = { id: Date.now(), ...filmData };
+                filmy.push(newFilm);
+            } 
+            
+            else if (req.url.startsWith("/edit/")) {
+                const id = Number(req.url.split("/")[2]);
+                const index = filmy.findIndex(f => f.id === id);
+                if (index !== -1) filmy[index] = { id, ...filmData };
+            }
+
+            saveData(filmy);
+            res.writeHead(302, { "Location": "/" });
+            res.end();
+        });
+        return;
+    }
+
+   
+    if (req.url.startsWith("/delete/") && req.method === "GET") {
+        const id = Number(req.url.split("/")[2]);
+        const zbyvajici = filmy.filter(f => f.id !== id);
+        saveData(zbyvajici);
+        res.writeHead(302, { "Location": "/" });
+        return res.end();
+    }
 });
 
-// pridani filmu
-app.post('/items', (req, res) => {
-    const filmy = nactiData();
-    filmy.push({ id: Date.now(), ...req.body });
-    ulozData(filmy);
-    res.redirect('/');
-});
-
-// smazani
-app.get('/delete/:id', (req, res) => {
-    let filmy = nactiData().filter(f => f.id != req.params.id);
-    ulozData(filmy);
-    res.redirect('/');
-});
-
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-
-app.listen(3000, () => console.log('http://localhost:3000'));
+server.listen(3000, () => console.log("Běží na http://localhost:3000"));
