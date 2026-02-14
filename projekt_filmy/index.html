@@ -5,6 +5,12 @@
     <title>Knihovna FILMY</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <style>
+        /* Rychlá oprava, aby form nebyl vidět hned */
+        #form-sekce { display: none; background: #f4f4f4; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
+        .karta { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; }
+        .btn-icon.del { color: red; }
+    </style>
 </head>
 <body>
 
@@ -20,9 +26,9 @@
     <section id="form-sekce">
         <h3 id="form-nadpis">Nový film</h3>
         <form id="film-form" method="POST">
-            <input type="text" name="nazev" id="f-nazev" placeholder="Název" required style="width:90%">
-            <input type="text" name="rok" id="f-rok" placeholder="Rok" required style="width:90%">
-            <input type="text" name="zanr" id="f-zanr" placeholder="Žánr" required style="width:90%">
+            <input type="text" name="nazev" id="f-nazev" placeholder="Název" required style="width:90%; margin-bottom:10px;"><br>
+            <input type="text" name="rok" id="f-rok" placeholder="Rok" required style="width:90%; margin-bottom:10px;"><br>
+            <input type="text" name="zanr" id="f-zanr" placeholder="Žánr" required style="width:90%; margin-bottom:10px;"><br>
             <div style="margin-top: 10px;">
                 <button type="submit" style="background: #000; color: white; padding: 10px 20px; border-radius: 5px; cursor:pointer;">Uložit</button>
                 <button type="button" onclick="zavriForm()" style="padding: 10px; cursor:pointer;">Zrušit</button>
@@ -35,7 +41,7 @@
     <script>
         async function nactiFilmy() {
             const vyhledavani = document.getElementById('filterInput').value;
-            const res = await fetch(`/items?search=${vyhledavani}`);
+            const res = await fetch(`/items?search=${encodeURIComponent(vyhledavani)}`);
             const filmy = await res.json();
             const div = document.getElementById('seznamFilmu');
             div.innerHTML = '';
@@ -43,20 +49,19 @@
             filmy.forEach(f => {
                 div.innerHTML += `
                     <div class="karta">
-                        
                         <div class="obsah-karty">
                             <h2>${f.nazev}</h2>
                             <div class="film-info">
                                 <div><strong>Rok:</strong> ${f.rok}</div>
                                 <div><strong>Žánr:</strong> ${f.zanr}</div>
                             </div>
-                            <div class="film-id">ID: ${f.id}</div>
+                            <div class="film-id" style="font-size: 0.8em; color: gray;">ID: ${f.id}</div>
                         </div>
-                        <div class="ikony-bar">
+                        <div class="ikony-bar" style="margin-top: 10px;">
                             <button onclick="pripravEdit(${f.id})" class="btn-icon">
                                 <span class="material-symbols-outlined">edit</span> Upravit
                             </button>
-                            <a href="/delete/${f.id}" class="btn-icon del">
+                            <a href="/delete/${f.id}" class="btn-icon del" onclick="return confirm('Opravdu smazat?')">
                                 <span class="material-symbols-outlined">delete</span> Smazat
                             </a>
                         </div>
