@@ -1,9 +1,8 @@
-
 body {
     margin: 0;
     padding: 0;
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    background-color: #dbd6d6;
+    font-family: 'Trebuchet MS', sans-serif;
+    background-color: #fafafa;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -20,19 +19,16 @@ body {
 
 .logo {
     margin-left: 50px;
-    line-height: 1;
     font-size: 35px;
+    font-weight: bold;
 }
-
 
 .logo span {
     display: block;
-    font-size: 20px;
+    font-size: 18px;
     letter-spacing: 3px;
-    text-align: center;
-    font-family:'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    color: #999;
 }
-
 
 .menu {
     margin: 30px 0;
@@ -40,113 +36,101 @@ body {
     gap: 15px;
 }
 
-.menu button {
+.menu button, .menu input {
     background-color: #999;
     color: #000;
     border: none;
-    padding: 12px 45px;
+    padding: 12px 25px;
     font-size: 16px;
-    font-weight: 500;
+    border-radius: 10px;
     cursor: pointer;
-    transition: background 0.3s;
 }
-
-.menu button:hover {
-    background-color: #bbb;
-}
-
 
 .prehled {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 40px; 
+    gap: 30px;
     max-width: 1200px;
     padding: 20px;
-    
 }
 
-.karta { 
+.karta {
+    background-color: #fff;
+    width: 230px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    width: 220px; 
-    
+    position: relative;
 }
-
 
 .obrazekKarta {
+    width: 100%;
+    height: 300px;
     background-color: #888;
-    padding: 15px;
-    width: 100%; 
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 350px; 
 }
 
 .obrazekKarta img {
     width: 100%;
-    height: 260px;    
-    object-fit: cover; 
-    display: block;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    height: 100%;
+    object-fit: cover;
 }
 
-h2 {
-    font-size: 16px;
+.obsah-karty {
+    padding: 15px;
+    text-align: left;
 }
 
-.ziskat {
-    background-color: #1a1a1a;
-    color: white;
-    border: none;
-    padding: 8px 0;
-    width: 80%; 
-    margin-top: auto; 
-    cursor: pointer;
+.obsah-karty h2 {
+    font-size: 24px;
+    margin: 0 0 10px 0;
+    color: #000;
+}
+
+.film-info {
     font-size: 14px;
-    transition: background 0.2s;
+    color: #444;
+    line-height: 1.5;
 }
 
-.ziskat:hover {
-    background-color: white;
-    color: black;
+.film-id {
+    font-size: 10px;
+    color: #bbb;
+    margin-top: 8px;
 }
 
-
-.ikonyTlacitek {
+.ikony-bar {
     display: flex;
-    gap: 10px;
-    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding: 10px;
+    justify-content: space-around;
+    background: #fdfdfd;
 }
 
-.upravit, .smazat {
-    background-color: black;
-    color: white;
+.btn-icon {
+    background: none;
     border: none;
-    width: 35px;
-    height: 35px;
+    cursor: pointer;
+    color: #555;
     display: flex;
     align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 15px;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    gap: 5px;
+    font-size: 13px;
+    text-decoration: none;
 }
 
-.upravit:hover {
-    transform: scale(1.1);
-}
-.smazat:hover {
-    transform: scale(1.1);
-}
+.btn-icon:hover { color: #000; font-weight: bold; }
+.btn-icon.del:hover { color: red; }
 
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24
+#form-sekce {
+    display: none;
+    background: #eee;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    width: 80%;
+    max-width: 500px;
 }
