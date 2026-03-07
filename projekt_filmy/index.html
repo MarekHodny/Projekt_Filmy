@@ -5,12 +5,7 @@
     <title>Knihovna FILMY</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
-    <style>
-        
-        #form-sekce { display: none; background: #f4f4f4; padding: 20px; margin-bottom: 20px; border-radius: 8px; }
-        .karta { border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 8px; }
-        .btn-icon.del { color: red; }
-    </style>
+    
 </head>
 <body>
 
@@ -19,19 +14,24 @@
     </header>
 
     <nav class="menu">
-        <input type="text" id="filterInput" placeholder="Hledat film..." oninput="nactiFilmy()">
-        <button onclick="ukazForm('add')">Přidat film</button>
-    </nav>
+    <input type="text" id="filterNazev" placeholder="Hledat název" oninput="nactiFilmy()" style="width: 100px;">
+    <input type="text" id="filterZanr" placeholder="Žánr" oninput="nactiFilmy()" style="width: 100px;">
+    <input type="number" id="filterRok" placeholder="Rok vydání" oninput="nactiFilmy()" style="width: 100px;">
+
+    <button onclick="ukazForm('add')">Přidat film</button>
+</nav>
 
     <section id="form-sekce">
         <h3 id="form-nadpis">Nový film</h3>
         <form id="film-form" method="POST">
-            <input type="text" name="nazev" id="f-nazev" placeholder="Název" required style="width:90%; margin-bottom:10px;"><br>
-            <input type="text" name="rok" id="f-rok" placeholder="Rok" required style="width:90%; margin-bottom:10px;"><br>
-            <input type="text" name="zanr" id="f-zanr" placeholder="Žánr" required style="width:90%; margin-bottom:10px;"><br>
+            <input type="text" name="nazev" id="f-nazev" placeholder="Název" required><br>
+            <input type="text" name="rok" id="f-rok" placeholder="Rok" required ><br>
+            <input type="text" name="zanr" id="f-zanr" placeholder="Žánr" required ><br>
+            <input type="text" name="url" id="f-url" placeholder="URL adresa obrázku"><br>
+
             <div style="margin-top: 10px;">
-                <button type="submit" style="background: #000; color: white; padding: 10px 20px; border-radius: 5px; cursor:pointer;">Uložit</button>
-                <button type="button" onclick="zavriForm()" style="padding: 10px; cursor:pointer;">Zrušit</button>
+                <button id="potvrdit" type="submit" >Uložit</button>
+                <button id="zrusit" type="button" onclick="zavriForm()" style="padding: 10px; cursor:pointer;">Zrušit</button>
             </div>
         </form>
     </section>
@@ -39,36 +39,58 @@
     <main class="prehled" id="seznamFilmu"></main>
 
     <script>
-        async function nactiFilmy() {
-            const vyhledavani = document.getElementById('filterInput').value;
-            const res = await fetch(`/items?search=${encodeURIComponent(vyhledavani)}`);
-            const filmy = await res.json();
-            const div = document.getElementById('seznamFilmu');
-            div.innerHTML = '';
 
-            filmy.forEach(f => {
-                div.innerHTML += `
-                    <div class="karta">
-                        <div class="obsah-karty">
-                            <h2>${f.nazev}</h2>
-                            <div class="film-info">
-                                <div><strong>Rok:</strong> ${f.rok}</div>
-                                <div><strong>Žánr:</strong> ${f.zanr}</div>
-                            </div>
-                            <div class="film-id" style="font-size: 0.8em; color: gray;">ID: ${f.id}</div>
-                        </div>
-                        <div class="ikony-bar" style="margin-top: 10px;">
-                            <button onclick="pripravEdit(${f.id})" class="btn-icon">
-                                <span class="material-symbols-outlined">edit</span> Upravit
-                            </button>
-                            <a href="/delete/${f.id}" class="btn-icon del" onclick="return confirm('Opravdu smazat?')">
-                                <span class="material-symbols-outlined">delete</span> Smazat
-                            </a>
-                        </div>
-                    </div>`;
-            });
-        }
+    async function nactiFilmy() {
+    const nazev = document.getElementById('filterNazev').value;
+    const zanr = document.getElementById('filterZanr').value;
+    const rok = document.getElementById('filterRok').value;
+    
+    
+   
+    const params = new URLSearchParams({
+        search: nazev,
+        zanr: zanr,
+        rok: rok
+    }); 
 
+
+    const res = await fetch(`/items?${params.toString()}`);
+    const filmy = await res.json();
+
+   
+    const div = document.getElementById('seznamFilmu');
+    div.innerHTML = '';
+
+    filmy.forEach(f => {
+
+        const fotoHTML = f.url 
+        ? `<img src="${f.url}" style="width:100%; height:100%; object-fit:cover;">`
+        : `<span class="material-symbols-outlined" style="font-size: 50px; color: #bbb;">movie</span>`;
+
+        div.innerHTML += `
+            <div class="karta">
+                    <div class="obrazekKarta">${fotoHTML}</div>
+                    <div class="obsah-karty">
+                        <h2>${f.nazev}</h2>
+                        <div class="film-info">
+                            <div><strong>Rok:</strong> ${f.rok}</div>
+                            <div><strong>Žánr:</strong> ${f.zanr}</div>
+                        </div>
+                        <div class="film-id">ID: ${f.id}</div>
+                    </div>
+                    <div class="ikony-bar">
+                        <button onclick="pripravEdit(${f.id})" class="btn-icon">
+                            <span class="material-symbols-outlined">edit</span> Upravit
+                        </button>
+                        <button onclick="smazFilm(${f.id})" class="btn-icon del">
+                            <span class="material-symbols-outlined">delete</span> Smazat
+                        </button>
+                    </div>
+                </div>`;
+
+        
+    }); 
+}
         function ukazForm(typ) {
             document.getElementById('form-sekce').style.display = 'block';
             if(typ === 'add') {
@@ -86,9 +108,24 @@
             document.getElementById('f-nazev').value = f.nazev;
             document.getElementById('f-rok').value = f.rok;
             document.getElementById('f-zanr').value = f.zanr;
+            document.getElementById('f-url').value = f.url || "";
             document.getElementById('film-form').action = `/edit/${id}`;
             window.scrollTo(0,0);
         }
+
+        async function smazFilm(id) {
+        if (!confirm('Opravdu smazat tento film?')) return;
+
+        const res = await fetch(`/delete/${id}`, {
+            method: 'DELETE'
+        });
+
+        if (res.ok) {
+            nactiFilmy(); 
+        } else {
+            alert('Chyba při mazání filmu.');
+        }
+    }
 
         function zavriForm() { document.getElementById('form-sekce').style.display = 'none'; }
         

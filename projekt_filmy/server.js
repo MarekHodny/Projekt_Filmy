@@ -33,13 +33,24 @@ const server = http.createServer((req, res) => {
     }
 
     
-    if (req.url.startsWith("/items") && req.method === "GET") {
-        const urlParams = new URL(req.url, `http://${req.headers.host}`);
-        const s = urlParams.searchParams.get("search") || "";
-        const filtrovane = filmy.filter(f => f.nazev.toLowerCase().includes(s.toLowerCase()));
-        res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
-        return res.end(JSON.stringify(filtrovane));
-    }
+   if (req.url.startsWith("/items") && req.method === "GET") {
+    const urlParams = new URL(req.url, `http://${req.headers.host}`);
+    
+    const sNazev = urlParams.searchParams.get("search") || "";
+    const sZanr = urlParams.searchParams.get("zanr") || "";
+    const sRok = urlParams.searchParams.get("rok") || ""; 
+
+    let filtrovane = filmy.filter(f => {
+        const matchNazev = f.nazev.toLowerCase().includes(sNazev.toLowerCase());
+        const matchZanr = f.zanr.toLowerCase().includes(sZanr.toLowerCase());
+        
+        const matchRok = sRok === "" || f.rok == sRok;
+        return matchNazev && matchZanr && matchRok;
+    });
+
+    res.writeHead(200, { "Content-Type": "application/json; charset=utf-8" });
+    return res.end(JSON.stringify(filtrovane));
+}
 
     
     if (req.url.startsWith("/get-film/") && req.method === "GET") {
@@ -55,11 +66,20 @@ const server = http.createServer((req, res) => {
         req.on("data", chunk => { body += chunk.toString(); });
         req.on("end", () => {
             const data = new URLSearchParams(body);
-            const filmData = {
-                nazev: data.get("nazev"),
-                rok: data.get("rok"),
-                zanr: data.get("zanr")
-            };
+            
+            const nazev = data.get("nazev")?.trim();
+            const rok = data.get("rok")?.trim();
+            const zanr = data.get("zanr")?.trim();
+            const url = data.get("url")?.trim();
+
+
+            if (!nazev || !rok || !zanr) {
+                res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
+                return res.end("Chyba: Všechna pole musí být vyplněna!");
+            }
+
+           
+            const filmData = { nazev, rok, zanr, url };
 
             if (req.url === "/items") {
                 const newFilm = { id: Date.now(), ...filmData };
@@ -76,15 +96,17 @@ const server = http.createServer((req, res) => {
         });
         return;
     }
-
     
-    if (req.url.startsWith("/delete/") && req.method === "GET") {
-        const id = Number(req.url.split("/")[2]);
-        const zbyvajici = filmy.filter(f => f.id !== id);
-        saveData(zbyvajici);
-        res.writeHead(302, { "Location": "/" });
-        return res.end();
-    }
+    if (req.url.startsWith("/delete/") && req.method === "DELETE") {
+    const id = Number(req.url.split("/")[2]);
+    const zbyvajici = filmy.filter(f => f.id !== id);
+    
+    saveData(zbyvajici);
+    
+    res.writeHead(200, { "Content-Type": "application/json" });
+    return res.end(JSON.stringify({ success: true }));
+}
 });
+
 
 server.listen(3000, () => console.log("Server běží na http://localhost:3000"));

@@ -50,32 +50,27 @@ body {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 30px;
-    max-width: 1200px;
-    padding: 20px;
+    gap: 25px; 
+    padding: 40px;
+    width: 100%;
+    max-width: 1300px;
+    box-sizing: border-box;
 }
 
 .karta {
-    background-color: #fff;
-    width: 230px;
+    width: 220px;
+    border: 1px solid #ddd;
+    padding: 0; 
+    margin: 0;
     border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    position: relative;
+    overflow: hidden; 
+    background: white;
+    vertical-align: top;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
-
-.obrazekKarta {
-    width: 100%;
-    height: 300px;
-    background-color: #888;
-}
-
-.obrazekKarta img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+.karta:hover {
+    transform: translateY(-5px); 
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15); 
 }
 
 .obsah-karty {
@@ -124,13 +119,111 @@ body {
 .btn-icon:hover { color: #000; font-weight: bold; }
 .btn-icon.del:hover { color: red; }
 
+.obrazekKarta {
+    width: 100%;
+    height: 310px; 
+    background-color: #eee; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; 
+}
+
+.obrazekKarta img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
 #form-sekce {
     display: none;
-    background: #eee;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #ccc;
-    width: 80%;
-    max-width: 500px;
+    background-color: #fff;
+    border: 1px solid #eee; 
+    border-radius: 20px;    
+    padding: 40px;          
+    width: 90%;
+    max-width: 450px;
+    margin: 40px auto;      
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05); 
+    box-sizing: border-box; 
 }
+#form-sekce h3 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #222;
+    text-align: center;
+    border-bottom: none; 
+    text-transform: none; 
+    letter-spacing: normal;
+}
+
+#form-sekce input {
+    width: 100%;            
+    padding: 14px 20px;     
+    margin: 10px 0;        
+    border: 1px solid #ddd; 
+    background-color: #f5f5f5; 
+    border-radius: 12px;    
+    box-sizing: border-box; 
+    font-family: inherit;
+    font-size: 15px;
+    outline: none;
+    transition: all 0.2s;
+}
+#form-sekce input:focus {
+    border-color: #bbb;
+    background-color: #fff; 
+}
+
+#form-sekce .tlacitka-row {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    justify-content: center; 
+}
+
+.menu input {
+    background-color: #fff;
+    border: 1px solid #bbb;
+    padding: 10px 15px;
+}
+
+.menu input:focus {
+    border-color: #000;
+    outline: none;
+}
+
+#potvrdit {
+    padding: 12px 25px;
+    border-radius: 50px; 
+    border: none;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+#zrusit {
+    padding: 12px 25px;
+    border-radius: 50px; 
+    border: none;
+    font-family: inherit;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+#potvrdit {
+    background-color: #888;
+    color: white;
+}
+#zrusit {
+    background-color: #eee;
+    color: #555;
+    margin-left: 10px;
+}
+
+#potvrdit:hover { background-color: rgb(124, 161, 10); }
+#zrusit:hover { background-color: #ddd; }
