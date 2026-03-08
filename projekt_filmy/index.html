@@ -17,6 +17,8 @@
     <input type="text" id="filterNazev" placeholder="Hledat název" oninput="nactiFilmy()" style="width: 100px;">
     <input type="text" id="filterZanr" placeholder="Žánr" oninput="nactiFilmy()" style="width: 100px;">
     <input type="number" id="filterRok" placeholder="Rok vydání" oninput="nactiFilmy()" style="width: 100px;">
+    
+    
 
     <button onclick="ukazForm('add')">Přidat film</button>
 </nav>
@@ -35,6 +37,14 @@
             </div>
         </form>
     </section>
+
+    <div id="detail-modal" class="modal" style="display:none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8);">
+    <div style="background-color: #fff; margin: 5% auto; padding: 20px; width: 80%; max-width: 600px; border-radius: 8px; position: relative;">
+        <span onclick="zavriDetail()" style="position: absolute; right: 20px; top: 10px; font-size: 28px; cursor: pointer;">&times;</span>
+        <div id="detail-obsah">
+            </div>
+    </div>
+</div>
 
     <main class="prehled" id="seznamFilmu"></main>
 
@@ -71,7 +81,7 @@
             <div class="karta">
                     <div class="obrazekKarta">${fotoHTML}</div>
                     <div class="obsah-karty">
-                        <h2>${f.nazev}</h2>
+                        <h2 onclick="ukazDetail(${f.id})" style="cursor:pointer; color: #2196F3; text-decoration: underline;">${f.nazev}</h2>
                         <div class="film-info">
                             <div><strong>Rok:</strong> ${f.rok}</div>
                             <div><strong>Žánr:</strong> ${f.zanr}</div>
@@ -126,6 +136,37 @@
             alert('Chyba při mazání filmu.');
         }
     }
+
+    async function ukazDetail(id) {
+    const res = await fetch(`/get-film/${id}`);
+    const f = await res.json();
+    
+    const obsah = document.getElementById('detail-obsah');
+    const foto = f.url 
+        ? `<img src="${f.url}" style="width:100%; max-height:400px; object-fit:contain; margin-bottom:15px;">` 
+        : `<div style="text-align:center; padding:40px; background:#eee;"><span class="material-symbols-outlined" style="font-size: 100px;">movie</span></div>`;
+
+    obsah.innerHTML = `
+        ${foto}
+        <h1 style="margin-top:0;">${f.nazev}</h1>
+        <hr>
+        <p><strong>Rok vydání:</strong> ${f.rok}</p>
+        <p><strong>Žánr:</strong> ${f.zanr}</p>
+        <p><strong>ID filmu:</strong> ${f.id}</p>`;
+    
+    document.getElementById('detail-modal').style.display = 'block';
+}
+
+function zavriDetail() {
+    document.getElementById('detail-modal').style.display = 'none';
+}
+
+window.onclick = function(event) {
+    const modal = document.getElementById('detail-modal');
+    if (event.target == modal) {
+        zavriDetail();
+    }
+}
 
         function zavriForm() { document.getElementById('form-sekce').style.display = 'none'; }
         
